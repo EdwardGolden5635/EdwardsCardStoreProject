@@ -1,5 +1,6 @@
 <?php
-function getDbConn() {
+function getDbConn() 
+{
     $hostname = 'localhost';
     $username = 'ecpi_user';
     $password = 'Password1';

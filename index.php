@@ -4,6 +4,7 @@ require_once("../Model/cardinfo.php");
 
 $conn = getDbConn();
 $cards = getAllCards($conn);
+$cartQuantities = getCartQuantities($conn);
 mysqli_close($conn);
 ?>
 
@@ -20,7 +21,7 @@ mysqli_close($conn);
     </header>
     <nav>
         <ul class="nav-flex">
-            <li><a href="../Controller/cards_controller.php">Homepage</a></li>
+            <li><a href="index.php">Homepage</a></li>
             <li><a href="cart.php">Shopping Cart</a></li>
         </ul>
     </nav>
@@ -32,22 +33,32 @@ mysqli_close($conn);
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
-                <th>Quantity</th>
-                <th>Add</th>
+                <th>Quantity in Cart</th>
+                <th>Actions</th>
             </tr>
-            <?php foreach ($cards as $card): ?>
+            <?php foreach ($cards as $card): 
+                $pid = $card["ProductID"];
+                $qty = $cartQuantities[$pid] ?? 0;
+            ?>
                 <tr>
-                    <td><?php echo $card["ProductID"]; ?></td>
+                    <td><?php echo $pid; ?></td>
                     <td><?php echo htmlspecialchars($card["ProductName"]); ?></td>
                     <td><?php echo htmlspecialchars($card["ProductDescription"]); ?></td>
                     <td>$<?php echo number_format($card["ProductCost"], 2); ?></td>
+                    <td><?php echo $qty; ?></td>
                     <td>
-                        <form method="post" action="../Controller/cards_controller.php">
-                            <input type="hidden" name="card_id" value="<?php echo $card["ProductID"]; ?>">
-                            <input type="number" name="quantity" value="1" min="1">
-                    </td>
-                    <td>
-                            <input type="submit" name="add_to_cart" value="Add to Cart">
+                        <form method="post" action="../Controller/cart_actions.php" style="display:inline;">
+                            <input type="hidden" name="product_id" value="<?php echo $pid; ?>">
+                            <input type="number" name="quantity" value="<?php echo $qty; ?>" min="0">
+                            <input type="submit" name="update_quantity" value="Update">
+                        </form>
+                        <form method="post" action="../Controller/cart_actions.php" style="display:inline;">
+                            <input type="hidden" name="product_id" value="<?php echo $pid; ?>">
+                            <input type="submit" name="add_to_cart" value="Add">
+                        </form>
+                        <form method="post" action="../Controller/cart_actions.php" style="display:inline;">
+                            <input type="hidden" name="product_id" value="<?php echo $pid; ?>">
+                            <input type="submit" name="remove_from_cart" value="Remove">
                         </form>
                     </td>
                 </tr>
@@ -55,7 +66,7 @@ mysqli_close($conn);
         </table>
     </main>
     <footer>
-        © 2025 Edward's Card Store — All Rights Reserved
+         2025 Edward's Card Store — All Rights Reserved
     </footer>
 </body>
 </html>
